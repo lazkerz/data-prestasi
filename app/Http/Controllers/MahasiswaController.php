@@ -1,0 +1,116 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Mahasiswa;
+use App\Models\Prodi;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class MahasiswaController extends Controller
+{
+    // Display the list of Mahasiswa
+    public function index()
+    {
+        $user = Auth::user();
+
+        // If the user is an admin, show all Mahasiswa data
+        if ($user->hasRole('admin')) {
+            $mahasiswa = Mahasiswa::all();
+        } else {
+            // If the user's role matches a specific Prodi, filter the Mahasiswa data
+            $prodi = $user->getRoleNames()->first();
+            $mahasiswa = Mahasiswa::where('prodi', $prodi)->get();
+        }
+
+        return view('mahasiswa.index', compact('mahasiswa'));
+    }
+
+    public function create()
+    {
+        $user = Auth::user();
+
+        // Jika user adalah admin, tampilkan semua prodi
+        if ($user->hasRole('admin')) {
+            $prodiList = Prodi::all();
+        } else {
+            // Tampilkan hanya prodi yang sesuai dengan role user
+            $roleProdi = $user->getRoleNames()->first();
+            $prodiList = Prodi::where('nama_prodi', $roleProdi)->get();
+        }
+
+        return view('mahasiswa.create', compact('prodiList'));
+    }
+
+    public function edit(Mahasiswa $mahasiswa)
+    {
+        $user = Auth::user();
+
+        // Jika user adalah admin, tampilkan semua prodi
+        if ($user->hasRole('admin')) {
+            $prodiList = Prodi::all();
+        } else {
+            // Tampilkan hanya prodi yang sesuai dengan role user
+            $roleProdi = $user->getRoleNames()->first();
+            $prodiList = Prodi::where('nama_prodi', $roleProdi)->get();
+        }
+
+        return view('mahasiswa.edit', compact('mahasiswa', 'prodiList'));
+    }
+
+    public function update(Request $request, Mahasiswa $mahasiswa)
+    {
+        $validatedData = $request->validate([
+            'nama' => 'required',
+            'nim' => 'required|unique:mahasiswa,nim,' . $mahasiswa->id,
+            'jenis_kelamin' => 'required',
+            'prodi' => 'required',
+            'jenjang' => 'required',
+            'agama' => 'required',
+            'angkatan' => 'required',
+        ]);
+
+        $mahasiswa->update($validatedData);
+
+        return redirect()->route('mahasiswa.index')->with('success', 'Mahasiswa updated successfully.');
+    }
+
+    // Remove the specified Mahasiswa from storage
+    public function destroy(Mahasiswa $mahasiswa)
+    {
+        $mahasiswa->delete();
+
+        return redirect()->route('mahasiswa.index')->with('success', 'Mahasiswa deleted successfully.');
+    }
+
+    public function store(Request $request)
+    {
+        $validatedData = $request->validate([
+            'nama' => 'required',
+            'nim' => 'required|unique:mahasiswa,nim',
+            'jenis_kelamin' => 'required',
+            'prodi' => 'required',
+            'jenjang' => 'required',
+            'agama' => 'required',
+            'angkatan' => 'required',
+        ]);
+
+        Mahasiswa::create($validatedData);
+
+        return redirect()->route('mahasiswa.index')->with('success', 'Mahasiswa created successfully.');
+    }
+
+    public function show($nim)
+{
+    // Ambil data mahasiswa berdasarkan NIM
+    $mahasiswa = Mahasiswa::with('prestasi')->where('nim', $nim)->first();
+
+    // Jika mahasiswa tidak ditemukan, tampilkan pesan error
+    if (!$mahasiswa) {
+        return redirect()->route('mahasiswa.index')->withErrors('Mahasiswa tidak ditemukan.');
+    }
+
+    return view('mahasiswa.show', compact('mahasiswa'));
+}
+
+}
