@@ -14,7 +14,7 @@
         <svg id="menu-button" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 md:hidden fixed cursor-pointer z-50 top-4 left-4 mb-5" onclick="toggleNav()">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
         </svg>
-        <nav id="nav" class="fixed z-50 left-4 md:left-0 h-full w-[180px] flex flex-col bg-purple-500 border-r shadow-sm md:mt-0 mt-10 rounded-md md:rounded-none">
+        <nav id="nav" class="fixed z-50 left-4 md:left-0 h-full w-[180px] flex flex-col bg-purple-400 border-r shadow-sm md:mt-0 mt-10 rounded-md md:rounded-none">
             <img src="{{ asset('images/logo-pol.png') }}" class="p-3 w-fit h-[70px] object-cover">
             <div class="flex flex-row ml-2 gap-2 items-center p-3">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-white">
