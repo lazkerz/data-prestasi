@@ -10,11 +10,32 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
     // Tampilkan daftar user
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::all();
-        return view('users.index', compact('users'));
+        // Ambil nilai dari parameter rows atau default ke 10
+        $rows = $request->input('rows', 10);
+        $search = $request->input('search');
+
+        // Mulai dengan query dasar
+        $query = User::query();
+
+        // Jika ada input pencarian, tambahkan kondisi pencarian
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('email', 'like', "%{$search}%");
+        }
+
+        // Tambahkan pagination berdasarkan nilai rows
+        if ($rows === 'all') {
+            $users = $query->get(); // Ambil semua data jika 'all' dipilih
+        } else {
+            $users = $query->paginate($rows); // Paginate sesuai jumlah rows
+        }
+
+        // Kembalikan view dengan data users dan parameter untuk pencarian
+        return view('users.index', compact('users'))->with('search', $search);
     }
+
 
     // Form untuk menambahkan user baru
     public function create()

@@ -10,21 +10,46 @@ use Illuminate\Support\Facades\Auth;
 class MahasiswaController extends Controller
 {
     // Display the list of Mahasiswa
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
 
-        // If the user is an admin, show all Mahasiswa data
+        // Ambil nilai dari parameter rows atau default ke 10
+        $rows = $request->input('rows', 10);
+        $search = $request->input('search');
+
+        // Mulai dengan query dasar
+        $query = Mahasiswa::query();
+
+        // Jika user adalah admin, ambil semua data
         if ($user->hasRole('admin')) {
-            $mahasiswa = Mahasiswa::all();
+            // Jika ada input pencarian, tambahkan kondisi pencarian
+            if ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            }
+            $mahasiswa = $query->paginate($rows);
         } else {
-            // If the user's role matches a specific Prodi, filter the Mahasiswa data
+            // Jika peran pengguna cocok dengan Prodi tertentu, filter data Mahasiswa
             $prodi = $user->getRoleNames()->first();
-            $mahasiswa = Mahasiswa::where('prodi', $prodi)->get();
+
+            // Jika ada input pencarian, tambahkan kondisi pencarian
+            if ($search) {
+                $query->where('prodi', $prodi)
+                    ->where(function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%");
+                    });
+            } else {
+                $query->where('prodi', $prodi);
+            }
+
+            $mahasiswa = $query->paginate($rows);
         }
 
-        return view('mahasiswa.index', compact('mahasiswa'));
+        return view('mahasiswa.index', compact('mahasiswa', 'search'));
     }
+
 
     public function create()
     {
@@ -101,16 +126,15 @@ class MahasiswaController extends Controller
     }
 
     public function show($nim)
-{
-    // Ambil data mahasiswa berdasarkan NIM
-    $mahasiswa = Mahasiswa::with('prestasi')->where('nim', $nim)->first();
+    {
+        // Ambil data mahasiswa berdasarkan NIM
+        $mahasiswa = Mahasiswa::with('prestasi')->where('nim', $nim)->first();
 
-    // Jika mahasiswa tidak ditemukan, tampilkan pesan error
-    if (!$mahasiswa) {
-        return redirect()->route('mahasiswa.index')->withErrors('Mahasiswa tidak ditemukan.');
+        // Jika mahasiswa tidak ditemukan, tampilkan pesan error
+        if (!$mahasiswa) {
+            return redirect()->route('mahasiswa.index')->withErrors('Mahasiswa tidak ditemukan.');
+        }
+
+        return view('mahasiswa.show', compact('mahasiswa'));
     }
-
-    return view('mahasiswa.show', compact('mahasiswa'));
-}
-
 }
