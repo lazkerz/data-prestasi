@@ -1,64 +1,63 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="bg-white p-6">
-    <div class="mx-auto max-w-lg"">
-        <h2 class=" text-2xl font-bold mb-6">Create New User</h2>
+<div class="bg-gray-50 p-6">
+    <div class="h-fit md:ml-40 md:justify-center md:items-center mt-0 mb-10 gap-2">
+        <h2 class="text-xl font-bold text-center mx-auto text-purple-400 mb-5">Create New User</h2>
+        <div class="flex justify-center mx-auto w-[450px]">
+            <form action="{{ route('users.store') }}" method="POST" class="w-full gap-3 p-5 bg-white rounded rounded-lg shadow-lg">
+                @csrf
+                <!-- Name Field -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700">Name:</label>
+                    <input type="text" name="name" id="name"
+                        class="mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        required>
+                </div>
+                <!-- Username Field -->
+                <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700">Username:</label>
+                    <input type="text" name="username" id="username"
+                        class="mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        required>
+                </div>
 
-        <form action="{{ route('users.store') }}" method="POST" class="space-y-4">
-            @csrf
+                <!-- Email Field -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email:</label>
+                    <input type="email" name="email" id="email"
+                        class="mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        required>
+                </div>
 
-            <!-- Name Field -->
-            <div>
-                <label for="name" class="block text-sm font-medium text-gray-700">Name:</label>
-                <input type="text" name="name" id="name"
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    required>
-            </div>
+                <!-- Password Field -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password:</label>
+                    <input type="password" name="password" id="password"
+                        class="mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        required>
+                </div>
 
-            <!-- Username Field -->
-            <div>
-                <label for="username" class="block text-sm font-medium text-gray-700">Username:</label>
-                <input type="text" name="username" id="username"
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    required>
-            </div>
+                <!-- Role Selection Field -->
+                <div>
+                    <label for="role" class="block text-sm font-medium text-gray-700">Role:</label>
+                    <select name="role" id="role"
+                        class="mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm mb-3">
+                        @foreach ($roles as $role)
+                        <option value="{{ $role->name }}">{{ $role->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <!-- Email Field -->
-            <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Email:</label>
-                <input type="email" name="email" id="email"
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    required>
-            </div>
-
-            <!-- Password Field -->
-            <div>
-                <label for="password" class="block text-sm font-medium text-gray-700">Password:</label>
-                <input type="password" name="password" id="password"
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    required>
-            </div>
-
-            <!-- Role Selection Field -->
-            <div>
-                <label for="role" class="block text-sm font-medium text-gray-700">Role:</label>
-                <select name="role" id="role"
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                    @foreach ($roles as $role)
-                    <option value="{{ $role->name }}">{{ $role->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- Submit Button -->
-            <div>
-                <button type="submit"
-                    class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                    Create
-                </button>
-            </div>
-        </form>
+                <!-- Submit Button -->
+                <div>
+                    <button type="submit"
+                        class="w-full bg-purple-400 text-white py-2 px-4 rounded-md hover:bg-purple-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        Create
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 @endsection
