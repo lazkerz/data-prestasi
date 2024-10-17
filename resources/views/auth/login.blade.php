@@ -1,7 +1,7 @@
 <x-guest-layout>
     <x-auth-card>
         <div class="flex flex-col justify-center items-center gap-3 mx-auto">
-            <img src="{{ asset('images/logo-polmed.png') }}" alt="logo polmed" class="text-center items-center w-fit h-[50px] object-cover">
+            <img src="{{ asset('images/logo-polm.png') }}" alt="logo polmed" class="text-center items-center w-fit h-[50px] object-cover">
             <p class="text-sm font-medium">Selamat Datang !</p>
         </div>
         <!-- Session Status -->
