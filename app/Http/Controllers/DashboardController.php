@@ -22,10 +22,11 @@ class DashboardController extends Controller
         // Data for the first chart (Prestasi per month)
         $prestasiData = Prestasi::select(
             DB::raw('DATE_FORMAT(created_at, "%b") as month'),
-            DB::raw('COUNT(*) as count')
+            DB::raw('COUNT(*) as count'),
+            DB::raw('MIN(created_at) as created_at_min')
         )
-            ->groupBy('month')
-            ->orderBy(DB::raw('MONTH(created_at)'))
+            ->groupBy(DB::raw('DATE_FORMAT(created_at, "%b")'))
+            ->orderBy('created_at_min')
             ->get();
 
         $months = $prestasiData->pluck('month')->toArray();
@@ -35,10 +36,11 @@ class DashboardController extends Controller
         $tingkatanData = Prestasi::select(
             DB::raw('DATE_FORMAT(created_at, "%b") as month'),
             'tingkatan_prestasi',
-            DB::raw('COUNT(*) as count')
+            DB::raw('COUNT(*) as count'),
+            DB::raw('MIN(created_at) as created_at_min')
         )
-            ->groupBy('month', 'tingkatan_prestasi')
-            ->orderBy(DB::raw('MONTH(created_at)'))
+            ->groupBy(DB::raw('DATE_FORMAT(created_at, "%b")'), 'tingkatan_prestasi')
+            ->orderBy('created_at_min')
             ->get();
 
         $tingkatanChartData = [
