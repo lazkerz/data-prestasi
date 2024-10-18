@@ -14,40 +14,41 @@ class MahasiswaController extends Controller
     {
         $user = Auth::user();
 
-        // Ambil nilai dari parameter rows atau default ke 10
         $rows = $request->input('rows', 10);
         $search = $request->input('search');
 
-        // Mulai dengan query dasar
         $query = Mahasiswa::query();
 
-        // Jika user adalah admin, ambil semua data
         if ($user->hasRole('admin')) {
-            // Jika ada input pencarian, tambahkan kondisi pencarian
             if ($search) {
-                $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama', 'like', "%{$search}%")
+                        ->orWhere('nim', 'like', "%{$search}%")
+                        ->orWhere('prodi', 'like', "%{$search}%");
+                });
             }
-            $mahasiswa = $query->paginate($rows);
         } else {
-            // Jika peran pengguna cocok dengan Prodi tertentu, filter data Mahasiswa
             $prodi = $user->getRoleNames()->first();
+            $query->where('prodi', $prodi);
 
-            // Jika ada input pencarian, tambahkan kondisi pencarian
             if ($search) {
-                $query->where('prodi', $prodi)
-                    ->where(function ($q) use ($search) {
-                        $q->where('name', 'like', "%{$search}%")
-                            ->orWhere('email', 'like', "%{$search}%");
-                    });
-            } else {
-                $query->where('prodi', $prodi);
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama', 'like', "%{$search}%")
+                        ->orWhere('nim', 'like', "%{$search}%");
+                });
             }
-
-            $mahasiswa = $query->paginate($rows);
         }
 
-        return view('mahasiswa.index', compact('mahasiswa', 'search'));
+        $isPaginated = $rows !== 'all';
+
+        if ($isPaginated) {
+            $mahasiswa = $query->paginate((int)$rows);
+        } else {
+            $total = $query->count();
+            $mahasiswa = $query->paginate($total);
+        }
+
+        return view('mahasiswa.index', compact('mahasiswa', 'search', 'rows', 'isPaginated'));
     }
 
 

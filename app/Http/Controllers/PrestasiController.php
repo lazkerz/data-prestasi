@@ -39,12 +39,16 @@ class PrestasiController extends Controller
         }
 
         // Lakukan paginasi pada query
-        $mahasiswas = $query->paginate($rows);
+        $isPaginated = $rows !== 'all';
 
-        return view('prestasi.index', compact('mahasiswas', 'search', 'rows'));
+        if ($isPaginated) {
+            $mahasiswas = $query->paginate($rows);
+        } else {
+            $mahasiswas = $query->get();
+        }
+
+        return view('prestasi.index', compact('mahasiswas', 'search', 'rows', 'isPaginated'));
     }
-
-
 
     public function create(Mahasiswa $mahasiswa)
     {

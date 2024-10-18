@@ -30,51 +30,60 @@
             </form>
         </div>
 
-        <table class="w-full">
-            <thead>
-                <tr>
-                    <th class="px-4 py-2 bg-purple-400 border border-white text-white text-left">Nama</th>
-                    <th class="px-4 py-2 bg-purple-400 border border-white text-white text-left">NIM</th>
-                    <th class="px-4 py-2 bg-purple-400 border border-white text-white text-left">Jenis Kelamin</th>
-                    <th class="px-4 py-2 bg-purple-400 border border-white text-white text-left">Prodi</th>
-                    <th class="px-4 py-2 bg-purple-400 border border-white text-white text-left">Jenjang</th>
-                    <th class="px-4 py-2 bg-purple-400 border border-white text-white text-left">Agama</th>
-                    <th class="px-4 py-2 bg-purple-400 border border-white text-white text-left">Angkatan</th>
-                    <th class="px-4 py-2 bg-purple-400 border border-white text-white text-left">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($mahasiswa as $mhs)
-                <tr>
-                    <td class="px-4 py-2 bg-gray-100">{{ $mhs->nama }}</td>
-                    <td class="px-4 py-2 bg-gray-100">{{ $mhs->nim }}</td>
-                    <td class="px-4 py-2 bg-gray-100">{{ $mhs->jenis_kelamin }}</td>
-                    <td class="px-4 py-2 bg-gray-100">{{ $mhs->prodi }}</td>
-                    <td class="px-4 py-2 bg-gray-100">{{ $mhs->jenjang }}</td>
-                    <td class="px-4 py-2 bg-gray-100">{{ $mhs->agama }}</td>
-                    <td class="px-4 py-2 bg-gray-100">{{ $mhs->angkatan }}</td>
-                    <td class="px-4 py-2 bg-gray-100 flex flex-col gap-2">
-                        <a href="{{ route('mahasiswa.edit', $mhs->id) }}" class="text-white px-3 py-1 text-sm rounded-lg bg-purple-400 hover:bg-purple-500">Edit</a>
-                        <form action="{{ route('mahasiswa.destroy', $mhs->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-white px-3 py-1 text-sm rounded-lg bg-red-500 hover:bg-red-600" onclick="return confirm('Apakah Anda yakin?')">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="8" class="text-center">Tidak ada data tersedia</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+        <div class="overflow-x-auto shadow-md sm:rounded-lg">
+            <table class="w-full text-sm text-left text-gray-500">
+                <thead class="text-xs text-white uppercase bg-purple-400">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">Nama</th>
+                        <th scope="col" class="px-6 py-3">NIM</th>
+                        <th scope="col" class="px-6 py-3">Jenis Kelamin</th>
+                        <th scope="col" class="px-6 py-3">Prodi</th>
+                        <th scope="col" class="px-6 py-3">Jenjang</th>
+                        <th scope="col" class="px-6 py-3">Agama</th>
+                        <th scope="col" class="px-6 py-3">Angkatan</th>
+                        <th scope="col" class="px-6 py-3">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($mahasiswa as $mhs)
+                    <tr class="bg-white border-b hover:bg-gray-50">
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{{ $mhs->nama }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ $mhs->nim }}</td>
+                        <td class="px-6 py-4">{{ $mhs->jenis_kelamin }}</td>
+                        <td class="px-6 py-4">{{ $mhs->prodi }}</td>
+                        <td class="px-6 py-4">{{ $mhs->jenjang }}</td>
+                        <td class="px-6 py-4">{{ $mhs->agama }}</td>
+                        <td class="px-6 py-4">{{ $mhs->angkatan }}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-row gap-2">
+                                <a href="{{ route('mahasiswa.edit', $mhs->id) }}" class="font-medium text-white bg-purple-400 hover:bg-purple-500 px-3 py-1.5 rounded text-xs text-center">Edit</a>
+                                <form action="{{ route('mahasiswa.destroy', $mhs->id) }}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="font-medium text-white bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded text-xs w-full" onclick="return confirm('Apakah Anda yakin?')">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr class="bg-white border-b">
+                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">Tidak ada data tersedia</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
-        @if(method_exists($mahasiswa, 'links'))
+        @if ($isPaginated)
         <div class="mt-4">
-            {{ $mahasiswa->appends(request()->except('page'))->links() }}
+            {{ $mahasiswa->appends(request()->query())->links() }}
+        </div>
+        @else
+        <div class="mt-4">
+            Showing all {{ $mahasiswa->total() }} entries
         </div>
         @endif
+
     </div>
 </div>
 @endsection

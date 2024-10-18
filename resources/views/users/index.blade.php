@@ -31,39 +31,57 @@
             </form>
         </div>
 
-        <table class="w-full">
-            <thead>
-                <tr>
-                    <th class="px-2 py-2 bg-purple-400 border border-white text-white text-left">No</th>
-                    <th class="px-4 py-2 bg-purple-400 border border-white text-white text-left">Name</th>
-                    <th class="px-4 py-2 bg-purple-400 border border-white text-white text-left">Email</th>
-                    <th class="px-4 py-2 bg-purple-400 border border-white text-white text-left">Role</th>
-                    <th class="px-4 py-2 bg-purple-400 border border-white text-white text-left">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($users as $user)
-                <tr>
-                    <td class="px-2 py-2 bg-gray-100 text-center">{{ $loop->index + 1 }}</td>
-                    <td class="px-4 py-2 bg-gray-100">{{ $user->name }}</td>
-                    <td class="px-4 py-2 bg-gray-100">{{ $user->email }}</td>
-                    <td class="px-4 py-2 bg-gray-100">{{ $user->getRoleNames()->first() }}</td>
-                    <td class="px-4 py-2 bg-gray-100">
-                        <a href="{{ route('users.edit', $user) }}" class="text-white px-3 py-1 text-sm rounded rounded-lg bg-purple-400 hover:bg-purple-500">Edit</a>
-                        <form action="{{ route('users.destroy', $user) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-white px-3 py-1 text-sm rounded rounded-lg bg-red-500 hover:bg-red-600">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+        <div class="overflow-x-auto shadow-md sm:rounded-lg">
+            <table class="w-full text-sm text-left text-gray-500">
+                <thead class="text-xs text-white uppercase bg-purple-400">
+                    <tr>
+                        <th scope="col" class="px-2 py-3 text-center">No</th>
+                        <th scope="col" class="px-6 py-3">Name</th>
+                        <th scope="col" class="px-6 py-3">Email</th>
+                        <th scope="col" class="px-6 py-3">Role</th>
+                        <th scope="col" class="px-6 py-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($users as $user)
+                    <tr class="bg-white border-b hover:bg-gray-50">
+                        <td class="px-2 py-4 text-center font-medium text-gray-900 whitespace-nowrap">
+                            {{ $loop->index + 1 }}
+                        </td>
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                            {{ $user->name }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {{ $user->email }}
+                        </td>
+                        <td class="px-6 py-4">
+                            {{ $user->getRoleNames()->first() }}
+                        </td>
+                        <td class="px-6 py-4 space-x-2">
+                            <a href="{{ route('users.edit', $user) }}" class="font-medium text-white bg-purple-400 hover:bg-purple-500 px-3 py-1.5 rounded text-xs">
+                                Edit
+                            </a>
+                            <form action="{{ route('users.destroy', $user) }}" method="POST" class="inline-block">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="font-medium text-white bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded text-xs" onclick="return confirm('Are you sure you want to delete this user?')">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
 
-        @if(method_exists($users, 'links'))
+        @if ($isPaginated)
         <div class="mt-4">
-            {{ $users->appends(request()->except('page'))->links() }}
+            {{ $users->appends(request()->query())->links() }}
+        </div>
+        @else
+        <div class="mt-4">
+            Showing all {{ $users->count() }} entries
         </div>
         @endif
     </div>

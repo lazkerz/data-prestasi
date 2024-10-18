@@ -25,53 +25,71 @@
             </form>
         </div>
 
-        <table class="min-w-full border-collapse border border-gray-200">
-            <thead>
-                <tr class="bg-purple-400 text-white">
-                    <th class="border border-gray-200 px-4 py-2">Nama Mahasiswa</th>
-                    <th class="border border-gray-200 px-4 py-2">NIM</th>
-                    <th class="border border-gray-200 px-4 py-2">Prodi</th>
-                    <th class="border border-gray-200 px-4 py-2">Prestasi</th>
-                    <th class="border border-gray-200 px-4 py-2">Aksi</th>
-                </tr>
-            </thead>
-            <tbody id="mahasiswaTable">
-                @forelse ($mahasiswas as $mahasiswa)
-                <tr class="bg-gray-100 hover:bg-gray-200">
-                    <td class="border border-gray-200 px-4 py-2">{{ $mahasiswa->nama }}</td>
-                    <td class="border border-gray-200 px-4 py-2">{{ $mahasiswa->nim }}</td>
-                    <td class="border border-gray-200 px-4 py-2">{{ $mahasiswa->prodi }}</td>
-                    <td class="border border-gray-200 px-4 py-2">
-                        @foreach ($mahasiswa->prestasi as $prestasi)
-                        <div class="mb-2">
-                            {{ $prestasi->nama_prestasi }} ({{ $prestasi->tingkatan_prestasi }})
-                            <br>
-                            <!-- Tautan Edit dan Delete untuk setiap prestasi -->
-                            <a href="{{ route('prestasi.edit', $prestasi->id) }}" class="text-blue-500 hover:underline">Edit</a> |
-                            <form action="{{ route('prestasi.destroy', $prestasi->id) }}" method="POST" style="display:inline-block;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-500 hover:underline" onclick="return confirm('Apakah Anda yakin ingin menghapus prestasi ini?')">Delete</button>
-                            </form>
-                        </div>
-                        @endforeach
-                    </td>
-                    <td class="border border-gray-200 px-4 py-2">
-                        <a href="{{ route('prestasi.create', $mahasiswa->id) }}" class="bg-purple-400 text-white px-2 py-1 rounded hover:bg-purple-500">Tambah Prestasi</a>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="5" class="text-center">Tidak ada data tersedia</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+        <div class="overflow-x-auto shadow-md sm:rounded-lg">
+            <table class="w-full text-sm text-left text-gray-500">
+                <thead class="text-xs text-white uppercase bg-purple-400">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">Nama Mahasiswa</th>
+                        <th scope="col" class="px-6 py-3">NIM</th>
+                        <th scope="col" class="px-6 py-3">Prodi</th>
+                        <th scope="col" class="px-6 py-3">Prestasi</th>
+                        <th scope="col" class="px-6 py-3">
+                            <span class="sr-only">Aksi</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($mahasiswas as $mahasiswa)
+                    <tr class="bg-white border-b hover:bg-gray-50">
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                            {{ $mahasiswa->nama }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {{ $mahasiswa->nim }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {{ $mahasiswa->prodi }}
+                        </td>
+                        <td class="px-6 py-4">
+                            @foreach ($mahasiswa->prestasi as $prestasi)
+                            <div class="mb-2">
+                                {{ $prestasi->nama_prestasi }} ({{ $prestasi->tingkatan_prestasi }})
+                                <div class="mt-1 space-x-2">
+                                    <a href="{{ route('prestasi.edit', $prestasi->id) }}" class="font-medium text-purple-600 hover:text-purple-900">Edit</a>
+                                    <form action="{{ route('prestasi.destroy', $prestasi->id) }}" method="POST" class="inline-block">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="font-medium text-red-600 hover:text-red-900" onclick="return confirm('Apakah Anda yakin ingin menghapus prestasi ini?')">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            @endforeach
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <a href="{{ route('prestasi.create', $mahasiswa->id) }}" class="font-medium text-purple-600 hover:text-purple-900">Tambah Prestasi</a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr class="bg-white border-b">
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">Tidak ada data tersedia</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
         <!-- Link Pagination -->
+        @if ($isPaginated)
         <div class="mt-4">
-            {{ $mahasiswas->links() }}
+            {{ $mahasiswas->appends(request()->query())->links() }}
         </div>
+        @else
+        <div class="mt-4">
+            Showing all {{ $mahasiswas->count() }} entries
+        </div>
+        @endif
 
     </div>
 </div>

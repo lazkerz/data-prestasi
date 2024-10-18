@@ -26,14 +26,18 @@ class UserController extends Controller
         }
 
         // Tambahkan pagination berdasarkan nilai rows
-        if ($rows === 'all') {
-            $users = $query->get(); // Ambil semua data jika 'all' dipilih
+
+        $isPaginated = $rows !== 'all';
+
+        if ($isPaginated) {
+            $users = $query->paginate($rows);
         } else {
-            $users = $query->paginate($rows); // Paginate sesuai jumlah rows
+            $users = $query->get();
         }
 
+
         // Kembalikan view dengan data users dan parameter untuk pencarian
-        return view('users.index', compact('users'))->with('search', $search);
+        return view('users.index', compact('users', 'isPaginated'))->with('search', $search);
     }
 
 
