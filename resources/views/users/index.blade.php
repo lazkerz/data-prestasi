@@ -16,7 +16,7 @@
             <div>
                 <label for="rows" class="mr-2 text-sm">Show rows:</label>
                 <select id="rows" name="rows" class="border rounded px-4 py-2 bg-white appearance-none pr-8"
-                    onchange="window.location.href='{{ route('users.index') }}?rows=' + this.value + '&search={{ request('search') }}'">
+                    onchange="window.location.href='{{ route('users.index') }} ? rows=' + this.value + '&search={{ request('search') }}'">
                     <option value="10" {{ request('rows', 10) == 10 ? 'selected' : '' }}>10</option>
                     <option value="50" {{ request('rows', 10) == 50 ? 'selected' : '' }}>50</option>
                     <option value="100" {{ request('rows', 10) == 100 ? 'selected' : '' }}>100</option>

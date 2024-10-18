@@ -29,7 +29,7 @@ class PrestasiController extends Controller
             }
         } else {
             // Tampilkan data sesuai dengan prodi user
-            $prodi = $user->getRoleNames()->first();
+            $prodi = $user->getRoles()->first();
             $query->where('prodi', $prodi);
 
             // Jika ada input pencarian, tambahkan kondisi pencarian

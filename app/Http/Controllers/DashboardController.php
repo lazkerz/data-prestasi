@@ -17,7 +17,7 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $role = $user->getRoleNames()->first();
+        $role = $user->roles->first()->name;
 
         // Data for the first chart (Prestasi per month)
         $prestasiData = Prestasi::select(
