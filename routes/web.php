@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\PrestasiController;
+use App\Http\Controllers\UKMController;
 
 // Routing untuk login
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
@@ -36,6 +37,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/prestasi/{prestasi}/edit', [PrestasiController::class, 'edit'])->name('prestasi.edit');
     Route::put('/prestasi/{prestasi}', [PrestasiController::class, 'update'])->name('prestasi.update');
     Route::delete('/prestasi/{prestasi}', [PrestasiController::class, 'destroy'])->name('prestasi.destroy');
+
+    Route::get('/ukm', [UKMController::class, 'index'])->name('ukm.index');
+    Route::get('/ukm/create', [UKMController::class, 'create'])->name('ukm.create');
+    Route::post('/ukm', [UKMController::class, 'store'])->name('ukm.store');
+    Route::get('/ukm/{ukm}', [UKMController::class, 'show'])->name('ukm.show');
+    Route::get('/ukm/{ukm}/edit', [UKMController::class, 'edit'])->name('ukm.edit');
+    Route::put('/ukm/{ukm}', [UKMController::class, 'update'])->name('ukm.update');
+    Route::delete('/ukm/{ukm}', [UKMController::class, 'destroy'])->name('ukm.destroy');
+    Route::get('/search-mahasiswa', [UKMController::class, 'searchMahasiswa'])->name('search.mahasiswa');
+
 });
 
 // Routing untuk admin (hanya bisa diakses oleh admin)

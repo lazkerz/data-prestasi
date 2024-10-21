@@ -12,20 +12,21 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <script src="https://code.highcharts.com/highcharts.js"></script>
-    <!-- Scripts -->
-    <!-- @vite('resources/css/app.css') -->
 </head>
 
 <body class="font-sans antialiased">
-    <div class="min-h-screen bg-white">
+    <!-- Main Container: Apply Flex Layout -->
+    <div class="min-h-screen bg-white flex">
+        <!-- Sidebar -->
         @include('layouts.sidebar')
-        <!-- Page Content -->
-        <main>
+
+        <!-- Page Content: Ensure proper width -->
+        <main class="flex-1 p-5">
             @yield('content')
         </main>
     </div>
-    @stack('scripts')
 
+    @stack('scripts')
     @include('layouts.footer')
 </body>
 

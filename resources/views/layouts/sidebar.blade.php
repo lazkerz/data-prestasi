@@ -53,6 +53,7 @@
                             <span class="text-md font-batik text-white font-medium">Prestasi</span>
                         </a>
                     </li>
+                    @if (Auth::user()->hasRole('admin'))
                     <li class="nav-item menu-items ">
                         <a href="{{ route('users.index') }}" class=" flex flex-row gap-3 items-center hover:bg-purple-300 hover:text-white py-1 px-2 rounded-md">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-white">
@@ -61,6 +62,7 @@
                             <span class="text-md font-batik text-white font-medium">User</span>
                         </a>
                     </li>
+                    @endif
                     <li class="nav-item menu-items ">
                         <a href="{{ route('mahasiswa.index') }}" class=" flex flex-row gap-3 items-center hover:bg-purple-300 hover:text-white py-1 px-2 rounded-md">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-white">
@@ -69,6 +71,14 @@
                                 <path d="M4.462 19.462c.42-.419.753-.89 1-1.395.453.214.902.435 1.347.662a6.742 6.742 0 0 1-1.286 1.794.75.75 0 0 1-1.06-1.06Z" />
                             </svg>
                             <span class="text-md font-batik text-white font-medium">Mahasiswa</span>
+                        </a>
+                    </li>
+                    <li class="nav-item menu-items">
+                        <a href="{{ route('ukm.index') }}" class="flex flex-row gap-3 items-center hover:bg-purple-300 hover:text-white py-1 px-2 rounded-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-white">
+                                <path fill-rule="evenodd" d="M2.25 3.75A1.5 1.5 0 0 1 3.75 2h16.5a1.5 1.5 0 0 1 1.5 1.5v16.5a1.5 1.5 0 0 1-1.5 1.5H3.75a1.5 1.5 0 0 1-1.5-1.5V3.75Zm3 0v16.5h16.5V3.75H5.25Z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="text-md font-batik text-white font-medium">UKM</span>
                         </a>
                     </li>
                     <li class="nav-item menu-items">
@@ -143,3 +153,6 @@
         }
     });
 </script>
+
+
+
