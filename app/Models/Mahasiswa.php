@@ -29,8 +29,9 @@ class Mahasiswa extends Model
 
     public function ukms()
     {
-        return $this->belongsToMany(Ukm::class, 'mahasiswa_ukm')
-                    ->withPivot('jabatan') // Menambahkan kolom jabatan di relasi pivot
+        return $this->belongsToMany(Ukm::class, 'ukm_members')
+                    ->withPivot('position')
                     ->withTimestamps();
     }
+
 }

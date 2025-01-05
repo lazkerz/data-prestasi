@@ -2,153 +2,81 @@
 
 @section('content')
 <div class="container mx-auto max-w-4xl p-6 bg-gray-100 rounded-lg shadow-md">
-    <!-- Title Section -->
-    <!-- Title Section -->
-    <h2 class="text-2xl font-bold text-center text-indigo-700 mb-6">
-        Buat UKM atau HMPS untuk Anda: {{ Auth::user()->getRoleNames()->first() }}
-    </h2>
+    <h2 class="text-2xl font-semibold text-gray-800 mb-6">Create New UKM</h2>
 
-    <!-- Form Start -->
-    <form action="{{ route('ukm.store') }}" method="POST" enctype="multipart/form-data">
+    @if(session('error'))
+    <div class="bg-red-100 text-red-700 px-4 py-3 rounded mb-4">
+        {{ session('error') }}
+    </div>
+    @endif
+
+
+    <form action="{{ route('ukm.store') }}" method="POST" class="space-y-6">
         @csrf
 
-        <!-- Nama UKM/HMPS -->
-        <div class="mb-6">
-            <label for="nama" class="block text-sm font-bold mb-2">Nama UKM/HMPS</label>
-
-            @if(Auth::user()->hasRole('admin'))
-            <!-- Input teks untuk admin (editable) -->
-            <input type="text" name="nama" id="nama"
-                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Masukkan nama UKM atau HMPS">
-            @else
-            <!-- Input teks untuk prodi (readonly) -->
-            <input type="text" name="nama" id="nama"
-                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-gray-200"
-                value="HIMPUNAN MAHASISWA PROGRAM STUDI {{ Auth::user()->getRoleNames()->first() }}" readonly>
-            @endif
+        <!-- Nama UKM -->
+        <div>
+            <label for="nama" class="block text-sm font-medium text-gray-700">Nama UKM</label>
+            <input type="text" id="nama" name="nama"
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm @error('nama') border-red-500 @enderror"
+                value="{{ old('nama') }}" required>
+            @error('nama')
+            <span class="text-sm text-red-600 mt-1">{{ $message }}</span>
+            @enderror
         </div>
 
-        <!-- Cari Mahasiswa -->
-        <div class="mb-6">
-            <label for="searchMahasiswa" class="block text-sm font-bold mb-2">Cari Mahasiswa</label>
-            <input type="text" id="searchMahasiswa"
-                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Cari mahasiswa berdasarkan nama/NIM">
+        <!-- Email -->
+        <div>
+            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+            <input type="email" id="email" name="email"
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm @error('email') border-red-500 @enderror"
+                value="{{ old('email') }}" required>
+            @error('email')
+            <span class="text-sm text-red-600 mt-1">{{ $message }}</span>
+            @enderror
         </div>
 
-        <!-- Tabel Mahasiswa -->
-        <div class="overflow-x-auto mb-6">
-            <table class="min-w-full bg-white shadow-md rounded-lg w-full">
-                <thead class="bg-indigo-500 text-white">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-sm font-medium">NIM</th>
-                        <th class="px-6 py-3 text-left text-sm font-medium">Nama</th>
-                        <th class="px-6 py-3 text-left text-sm font-medium">Prodi</th>
-                        <th class="px-6 py-3 text-left text-sm font-medium">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="mahasiswaTable" class="bg-white text-gray-700 divide-y divide-gray-200">
-                    @foreach($mahasiswas as $mahasiswa)
-                    <tr class="hover:bg-gray-100">
-                        <td class="px-6 py-3">{{ $mahasiswa->nim }}</td>
-                        <td class="px-6 py-3">{{ $mahasiswa->nama }}</td>
-                        <td class="px-6 py-3">{{ $mahasiswa->prodi }}</td>
-                        <td class="px-6 py-3">
-                            <button type="button"
-                                class="bg-indigo-500 text-white px-4 py-1 rounded-lg hover:bg-indigo-600 select-mahasiswa"
-                                data-id="{{ $mahasiswa->id }}" data-nama="{{ $mahasiswa->nama }}">Pilih</button>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+        <!-- Username -->
+        <div>
+            <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+            <input type="text" id="username" name="username"
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm @error('username') border-red-500 @enderror"
+                value="{{ old('username') }}" required>
+            @error('username')
+            <span class="text-sm text-red-600 mt-1">{{ $message }}</span>
+            @enderror
         </div>
 
-        <!-- Daftar Mahasiswa yang Dipilih -->
-        <div id="selectedMahasiswa" class="mb-6">
-            <!-- Selected mahasiswa will be appended here -->
+        <!-- Password -->
+        <div>
+            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+            <input type="password" id="password" name="password"
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm @error('password') border-red-500 @enderror"
+                required>
+            @error('password')
+            <span class="text-sm text-red-600 mt-1">{{ $message }}</span>
+            @enderror
         </div>
 
-        <!-- Upload File Prestasi -->
-        <div class="mb-6">
-            <label for="file_prestasi" class="block text-sm font-bold mb-2">Unggah File Prestasi (opsional, maksimal 2MB
-                per file)</label>
-            <input type="file" name="file_prestasi[]" id="file_prestasi"
-                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                accept="image/*,.pdf" multiple>
-            <span class="text-xs text-red-500" id="fileError" style="display: none;">File size exceeds 2MB.</span>
+        <!-- Description -->
+        <div>
+            <label for="description" class="block text-sm font-medium text-gray-700">Description (Optional)</label>
+            <textarea id="description" name="description"
+                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm @error('description') border-red-500 @enderror"
+                rows="4">{{ old('description') }}</textarea>
+            @error('description')
+            <span class="text-sm text-red-600 mt-1">{{ $message }}</span>
+            @enderror
         </div>
 
         <!-- Submit Button -->
-        <button type="submit" class="bg-green-500 text-white w-full py-3 rounded-lg hover:bg-green-600">Simpan</button>
+        <div class="flex justify-end mt-6">
+            <a href="{{ route('ukm.index') }}" class=" px-4 py-2 text-sm text-gray-600 hover:text-gray-800 mr-4">Back</a>
+            <button type="submit"
+                class="px-4 py-2 bg-indigo-500 text-white text-sm font-medium rounded-md shadow-sm hover:bg-indigo-600">
+                Create UKM
+            </button>
+        </div>
     </form>
-
 </div>
-
-<!-- JavaScript for handling mahasiswa search and selection -->
-<script>
-    document.getElementById('searchMahasiswa').addEventListener('keyup', function() {
-        const search = this.value;
-        fetch(`/search-mahasiswa?search=${search}`)
-            .then(response => response.json())
-            .then(data => {
-                let mahasiswaTable = document.getElementById('mahasiswaTable');
-                mahasiswaTable.innerHTML = '';
-
-                data.forEach(mahasiswa => {
-                    mahasiswaTable.innerHTML += `
-                        <tr class="hover:bg-gray-100">
-                            <td class="px-6 py-3">${mahasiswa.nim}</td>
-                            <td class="px-6 py-3">${mahasiswa.nama}</td>
-                            <td class="px-6 py-3">${mahasiswa.prodi}</td>
-                            <td class="px-6 py-3">
-                                <button type="button" class="bg-indigo-500 text-white px-4 py-1 rounded-lg hover:bg-indigo-600 select-mahasiswa" data-id="${mahasiswa.id}" data-nama="${mahasiswa.nama}">Pilih</button>
-                            </td>
-                        </tr>
-                    `;
-                });
-            });
-    });
-
-    document.addEventListener('click', function(event) {
-        if (event.target.classList.contains('select-mahasiswa')) {
-            const mahasiswaId = event.target.dataset.id;
-            const mahasiswaNama = event.target.dataset.nama;
-            const selectedMahasiswa = document.getElementById('selectedMahasiswa');
-
-            if (document.querySelector(`input[value="${mahasiswaId}"]`)) {
-                alert('Mahasiswa sudah dipilih.');
-                return;
-            }
-
-            selectedMahasiswa.innerHTML += `
-                <div class="mb-3">
-                    <label for="jabatan_${mahasiswaId}" class="block text-sm font-bold mb-2">${mahasiswaNama}</label>
-                    <input type="hidden" name="mahasiswa_ids[]" value="${mahasiswaId}">
-                    <input type="text" name="jabatan[]" id="jabatan_${mahasiswaId}" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" placeholder="Contoh: Ketua, Wakil Ketua">
-                </div>
-            `;
-        }
-    });
-
-    document.getElementById('file_prestasi').addEventListener('change', function() {
-        const fileError = document.getElementById('fileError');
-        let exceedsLimit = false;
-
-        Array.from(this.files).forEach(file => {
-            const fileSize = file.size / 1024 / 1024;
-            if (fileSize > 2) {
-                exceedsLimit = true;
-            }
-        });
-
-        if (exceedsLimit) {
-            fileError.style.display = 'block';
-            this.value = '';
-        } else {
-            fileError.style.display = 'none';
-        }
-    });
-</script>
 @endsection

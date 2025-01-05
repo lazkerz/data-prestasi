@@ -3,269 +3,278 @@
 namespace App\Http\Controllers;
 
 use App\Models\UKM;
+use App\Models\User;
 use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class UKMController extends Controller
 {
-    // Tampilkan daftar UKM dengan pagination
     public function index(Request $request)
-{
-    $user = Auth::user();
-    $ukms = [];
-    $canCreateUKM = true; // Default assumption that the user can create a UKM
+    {
+        $user = Auth::user();
 
-    // Jika admin, tampilkan semua UKM dengan pagination
-    if ($user->hasRole('admin')) {
-        $ukms = UKM::paginate(10); // Menambahkan pagination
-    } else {
-        // Jika prodi user, tampilkan hanya HMPS yang sesuai dengan prodi user
-        $prodi = $user->getRoleNames()->first();
-        $ukms = UKM::where('nama', 'like', 'HMPS%')
-            ->where('nama', 'like', "%$prodi%")
-            ->paginate(10);
+        // Only admin can see all UKMs
+        $query = UKM::with(['user', 'members']);
 
-        // Cek jika prodi user sudah memiliki UKM dengan nama prodi
-        if (UKM::where('nama', 'HMPS ' . $prodi)->exists()) {
-            $canCreateUKM = false; // Jika ada, user tidak bisa menambah UKM baru
+        if (!$user->hasRole('admin')) {
+            // If UKM role, only show their own UKM
+            $query->where('user_id', $user->id);
         }
+
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where('nama', 'like', "%{$search}%");
+        }
+
+        $perPage = $request->get('rows', 10);
+        $isPaginated = $perPage !== 'all';
+
+        $ukms = $isPaginated
+            ? $query->paginate($perPage)
+            : $query->get();
+
+        return view('ukm.index', compact('ukms', 'isPaginated'));
     }
 
-    return view('ukm.index', [
-        'ukms' => $ukms,
-        'isPaginated' => true, // Menandakan bahwa pagination aktif
-        'canCreateUKM' => $canCreateUKM // Mengirimkan status untuk tombol tambah UKM
-    ]);
-}
-
-
-    // Halaman untuk membuat UKM baru
     public function create()
     {
-        $user = Auth::user();
-
-        // Jika user adalah prodi user, nama UKM langsung "HMPS Prodi"
-        $ukmName = null;
-        if ($user->hasRole('prodi') && $user->prodi) {
-            $ukmName = 'HMPS ' . $user->prodi->nama_prodi; // Mengambil nama prodi dari relasi
+        if (!Auth::user()->hasRole('admin')) {
+            abort(403, 'Unauthorized action.');
         }
-
-        // Ambil mahasiswa sesuai prodi user
-        if ($user->hasRole('admin')) {
-            $mahasiswas = Mahasiswa::limit(10)->get(); // Ambil 10 mahasiswa untuk admin
-        } else {
-            // Jika bukan admin, ambil mahasiswa sesuai prodi
-            $prodi = $user->getRoleNames()->first(); // Mengambil nama prodi dari role
-            $mahasiswas = Mahasiswa::where('prodi', $prodi)->limit(10)->get(); // Ambil 10 mahasiswa berdasarkan prodi
-        }
-
-        return view('ukm.create', compact('ukmName', 'mahasiswas'));
-    }
-
-
-    public function searchMahasiswa(Request $request)
-    {
-        $user = Auth::user();
-        $search = $request->input('search');
-
-        // Query dasar untuk mahasiswa
-        $query = Mahasiswa::query();
-
-        // Jika user adalah admin, tampilkan semua mahasiswa
-        if ($user->hasRole('admin')) {
-            if ($search) {
-                $query->where('nama', 'LIKE', "%$search%")
-                    ->orWhere('nim', 'LIKE', "%$search%");
-            }
-        } else {
-            // Tampilkan mahasiswa sesuai prodi user
-            $prodi = $user->getRoleNames()->first(); // Mengambil nama prodi dari role
-            $query->where('prodi', $prodi);
-
-            // Jika ada input pencarian, tambahkan kondisi pencarian
-            if ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('nama', 'LIKE', "%$search%")
-                        ->orWhere('nim', 'LIKE', "%$search%");
-                });
-            }
-        }
-
-        $mahasiswas = $query->limit(10)->get(); // Batasi 10 hasil
-
-        return response()->json($mahasiswas);
+        return view('ukm.create');
     }
 
     public function store(Request $request)
     {
-        $user = Auth::user();
+        if (!Auth::user()->hasRole('admin')) {
+            abort(403, 'Unauthorized action.');
+        }
 
         $request->validate([
-            'mahasiswa_ids' => 'required|array', // Ensure mahasiswa_ids is received as an array
-            'jabatan' => 'required|array', // Ensure position is set for each mahasiswa
-            'file_prestasi.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048', // Validate multiple files
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'username' => 'required|string|unique:users,username',
+            'password' => 'required|min:8',
+            'description' => 'nullable|string'
         ]);
 
-        if (!$user->hasRole('admin')) {
-            $prodi = $user->getRoleNames()->first();
-            $request->merge(['nama' => 'HMPS ' . $prodi]);
+        try {
+            DB::transaction(function () use ($request) {
+                $user = User::create([
+                    'name' => $request->nama,
+                    'email' => $request->email,
+                    'username' => $request->username,
+                    'password' => Hash::make($request->password),
+                    'role' => 'ukm'
+                ]);
+
+                UKM::create([
+                    'nama' => $request->nama,
+                    'user_id' => $user->id,
+                    'description' => $request->description
+                ]);
+            });
+
+            return redirect()->route('ukm.index')->with('success', 'UKM created successfully');
+        } catch (\Exception $e) {
+            Log::error('Error creating UKM: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to create UKM')->withInput();
         }
-
-        // Save UKM
-        $ukm = UKM::create([
-            'nama' => $request->nama,
-        ]);
-
-        // Attach selected mahasiswa with their respective jabatan
-        foreach ($request->mahasiswa_ids as $index => $mahasiswaId) {
-            $ukm->mahasiswas()->attach($mahasiswaId, ['jabatan' => $request->jabatan[$index]]);
-        }
-
-        // Handle file uploads
-        $filePaths = []; // Array to hold file paths
-        if ($request->hasFile('file_prestasi')) {
-            foreach ($request->file('file_prestasi') as $file) {
-                $fileName = time() . '_' . $file->getClientOriginalName();
-                $filePath = "prestasi/ukm/{$ukm->nama}";
-                $file->storeAs($filePath, $fileName, 'public'); // Save in 'storage/app/public'
-                $filePaths[] = $filePath . '/' . $fileName; // Add to array
-            }
-        }
-
-        // Save file paths as JSON
-        $ukm->file_prestasi = json_encode($filePaths);
-        $ukm->save(); // Save changes including file paths
-
-        return redirect()->route('ukm.index')->with('success', 'UKM dan anggota berhasil dibuat.');
     }
 
-
-
-    // Menambahkan anggota UKM dengan jabatan
-    public function addMember(Request $request, UKM $ukm)
-    {
-        $user = Auth::user();
-
-        // Jika user dari prodi, pastikan mereka hanya bisa menambah anggota dari prodi mereka
-        if (!$user->hasRole('admin')) {
-            $prodi = $user->getRoleNames()->first();
-
-            // Validasi bahwa mahasiswa yang akan ditambahkan berasal dari prodi yang sesuai
-            $request->validate([
-                'mahasiswa_id' => [
-                    'required',
-                    function ($attribute, $value, $fail) use ($prodi) {
-                        $mahasiswa = Mahasiswa::find($value);
-                        if ($mahasiswa && $mahasiswa->prodi !== $prodi) {
-                            $fail('Mahasiswa yang dipilih harus berasal dari prodi ' . $prodi);
-                        }
-                    }
-                ]
-            ]);
-        }
-
-        // Tambahkan anggota ke UKM dengan jabatan
-        $ukm->mahasiswas()->attach($request->mahasiswa_id, ['jabatan' => $request->jabatan]);
-
-        return redirect()->route('ukm.show', $ukm)->with('success', 'Anggota berhasil ditambahkan.');
-    }
-
-    // Menampilkan detail UKM beserta anggota-anggotanya
-    public function show(UKM $ukm)
-    {
-        return view('ukm.show', compact('ukm'));
-    }
-
-    // Menghapus UKM
-    public function destroy(UKM $ukm)
-    {
-        // Hapus relasi mahasiswa dengan UKM
-        $ukm->mahasiswas()->detach();
-
-        // Hapus UKM itu sendiri
-        $ukm->delete();
-
-        return redirect()->route('ukm.index')->with('success', 'UKM berhasil dihapus.');
-    }
-
-    // Assuming you have a method to get the UKM data
     public function edit($id)
     {
+        if (!Auth::user()->hasRole('admin')) {
+            abort(403, 'Unauthorized action.');
+        }
         $ukm = UKM::findOrFail($id);
-
-        // Decode file_prestasi if it's stored as JSON
-        if (is_string($ukm->file_prestasi)) {
-            $ukm->file_prestasi = json_decode($ukm->file_prestasi, true); // Convert JSON string to an array
-        }
-
-        // Get the logged-in user
-        $user = Auth::user();
-
-        // Fetch students based on user role
-        if ($user->hasRole('admin')) {
-            $mahasiswas = Mahasiswa::limit(10)->get();
-        } else {
-            $prodi = $user->getRoleNames()->first();
-            $mahasiswas = Mahasiswa::where('prodi', $prodi)->limit(10)->get();
-        }
-
-        return view('ukm.edit', compact('ukm', 'mahasiswas'));
+        return view('ukm.edit', compact('ukm'));
     }
-
-
 
     public function update(Request $request, $id)
     {
-        $ukm = Ukm::findOrFail($id);
+        if (!Auth::user()->hasRole('admin')) {
+            abort(403, 'Unauthorized action.');
+        }
 
-        // Validate the incoming data
-        $request->validate([
+        $ukm = UKM::with('user')->findOrFail($id);
+
+        $rules = [
             'nama' => 'required|string|max:255',
-            'mahasiswa_ids' => 'array',
-            'jabatan' => 'array',
-            'file_prestasi.*' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'removed_files' => 'array',
-        ]);
+            'description' => 'nullable|string',
+            'email' => ['required', 'email', Rule::unique('users')->ignore($ukm->user->id)],
+            'username' => ['required', Rule::unique('users')->ignore($ukm->user->id)],
+            'password' => 'nullable|min:8|confirmed'
+        ];
 
-        // Sync mahasiswa with jabatan
-        $mahasiswaData = [];
-        if ($request->has('mahasiswa_ids') && $request->has('jabatan')) {
-            foreach ($request->mahasiswa_ids as $index => $mahasiswaId) {
-                $mahasiswaData[$mahasiswaId] = ['jabatan' => $request->jabatan[$index]];
-            }
-            $ukm->mahasiswas()->sync($mahasiswaData);
-        }
+        $validated = $request->validate($rules);
 
-        // Handle file uploads
-        $filePaths = $ukm->file_prestasi ? json_decode($ukm->file_prestasi, true) : [];
+        try {
+            DB::transaction(function () use ($ukm, $validated, $request) {
+                // Update UKM information
+                $ukm->update([
+                    'nama' => $validated['nama'],
+                    'description' => $validated['description']
+                ]);
 
-        // Remove files marked for deletion
-        if ($request->has('removed_files')) {
-            foreach ($request->removed_files as $fileToRemove) {
-                if (($key = array_search($fileToRemove, $filePaths)) !== false) {
-                    Storage::delete('public/' . $fileToRemove); // Delete the file from storage
-                    unset($filePaths[$key]); // Remove the file from the list
+                // Update user information
+                $userData = [
+                    'name' => $validated['nama'],
+                    'email' => $validated['email'],
+                    'username' => $validated['username']
+                ];
+
+                // Only update password if provided
+                if ($request->filled('password')) {
+                    $userData['password'] = Hash::make($validated['password']);
                 }
-            }
+
+                $ukm->user->update($userData);
+            });
+
+            return redirect()->route('ukm.index')->with('success', 'UKM and account information updated successfully');
+        } catch (\Exception $e) {
+            Log::error('Error updating UKM: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Failed to update UKM and account information')->withInput();
         }
-
-        // Add new files
-        if ($request->hasFile('file_prestasi')) {
-            foreach ($request->file('file_prestasi') as $file) {
-                $path = $file->store('prestasi', 'public');
-                $filePaths[] = $path;
-            }
-        }
-
-        // Update the UKM's file_prestasi field with the merged array of old and new files
-        $ukm->file_prestasi = json_encode($filePaths);
-
-        // Save the UKM model
-        $ukm->save();
-
-        return redirect()->route('ukm.index')->with('success', 'UKM/HMPS successfully updated.');
     }
 
+    public function destroy($id)
+    {
+        if (!Auth::user()->hasRole('admin')) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $ukm = UKM::findOrFail($id);
+        try {
+            DB::transaction(function () use ($ukm) {
+                $user = $ukm->user;
+                $ukm->delete();
+                $user->delete();
+            });
+            return redirect()->route('ukm.index')->with('success', 'UKM deleted successfully');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to delete UKM');
+        }
+    }
+
+
+    public function showMembers(UKM $ukm)
+    {
+        $user = Auth::user();
+
+        // Allow access if admin or if UKM user viewing their own UKM
+        // if (!$user->hasRole('admin') && ($user->role !== 'ukm' || $user->id !== $ukm->user_id)) {
+        //     abort(403, 'Unauthorized action.');
+        // }
+
+        // Fetch paginated mahasiswa not already members
+        $mahasiswas = Mahasiswa::whereNotIn('id', $ukm->members->pluck('id'))
+            ->paginate(10);
+
+        return view('ukm.members', [
+            'ukm' => $ukm->load('members'),
+            'mahasiswas' => $mahasiswas
+        ]);
+    }
+
+    public function searchMahasiswa(Request $request)
+    {
+        $user = Auth::user();
+
+        // Validasi input pencarian
+        $request->validate([
+            'search' => 'nullable|string|max:255',
+        ]);
+
+        $search = $request->input('search');
+        $query = Mahasiswa::query();
+
+        // Filter pencarian
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'LIKE', "%$search%")
+                    ->orWhere('nim', 'LIKE', "%$search%");
+            });
+        }
+
+        // Batasan data berdasarkan peran pengguna
+        // if (!$user->hasRole('admin')) {
+        //     return response()->json([], 403); // Hanya admin yang bisa melihat semua mahasiswa
+        // }
+
+        $mahasiswas = $query->limit(10)->get(['id', 'nama', 'nim', 'prodi']); // Batasi hasil dan pilih kolom spesifik
+
+        return response()->json($mahasiswas);
+    }
+
+
+
+    public function addMembers(Request $request, $ukmId)
+    {
+        $ukm = Ukm::findOrFail($ukmId);
+
+        try {
+            // Debug data sebelum validasi
+            Log::info('Data yang diterima:', $request->all());
+
+            $request->validate([
+                'members' => 'required|array',
+                'members.*.id' => 'required|exists:mahasiswa,id',
+                'members.*.position' => 'required|string|max:255',
+            ]);
+
+            foreach ($request->members as $mahasiswaId => $memberData) {
+                DB::table('ukm_members')->updateOrInsert(
+                    ['ukm_id' => $ukmId, 'mahasiswa_id' => $memberData['id']],
+                    ['position' => $memberData['position'], 'created_at' => now(), 'updated_at' => now()]
+                );
+            }
+
+            return redirect()->route('ukm.members', $ukmId)->with('success', 'Anggota berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            Log::error("Error adding members: " . $e->getMessage());
+            return redirect()->route('ukm.members', $ukmId)->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+
+
+    public function updateMember(Request $request, $ukmId, $memberId)
+    {
+        $request->validate([
+            'position' => 'required|string|max:255',
+        ]);
+
+        $ukm = Ukm::findOrFail($ukmId);
+        $member = $ukm->members()->findOrFail($memberId);
+        $ukm->members()->updateExistingPivot($memberId, ['position' => $request->position]);
+
+        return redirect()->route('ukm.members', $ukmId)->with('success', 'Anggota berhasil diperbarui.');
+    }
+
+
+
+
+
+    public function removeMember(UKM $ukm, Mahasiswa $member)
+    {
+        $user = Auth::user();
+
+        // if (!$user->hasRole('admin') && ($user->role !== 'ukm' || $user->id !== $ukm->user_id)) {
+        //     abort(403, 'Unauthorized action.');
+        // }
+
+        try {
+            $ukm->members()->detach($member->id);
+            return redirect()->back()->with('success', 'Member removed successfully');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to remove member');
+        }
+    }
 }

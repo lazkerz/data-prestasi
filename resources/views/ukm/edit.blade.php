@@ -1,163 +1,86 @@
+<!-- resources/views/ukm/edit.blade.php -->
+
 @extends('layouts.app')
 
 @section('content')
-<div class="container mx-auto max-w-4xl p-6 bg-gray-100 rounded-lg shadow-md">
-    <h2 class="text-2xl font-bold text-center text-indigo-700 mb-6">Edit UKM/HMPS: {{ $ukm->nama }}</h2>
+<div class="bg-white p-6 md:ml-40 md:justify-around md:items-start mt-0 mb-10 gap-2">
+    <h2 class="text-xl font-bold text-purple-400 mb-4">Edit UKM</h2>
 
-    <form action="{{ route('ukm.update', $ukm->id) }}" method="POST" enctype="multipart/form-data">
+    @if (session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    <form action="{{ route('ukm.update', $ukm->id) }}" method="POST" class="space-y-4">
         @csrf
         @method('PUT')
-        <!-- Use PUT method for update -->
 
-        <div class="mb-6">
-            <label for="nama" class="block text-sm font-bold mb-2">Nama UKM/HMPS</label>
-
-            @if(Auth::user()->hasRole('admin')) <!-- Cek jika user adalah admin -->
-                <input type="text" name="nama" id="nama"
-                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                    value="{{ $ukm->nama }}">
-            @else
-                <input type="text" name="nama" id="nama"
-                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-gray-200"
-                    value="{{ $ukm->nama }}" readonly>
-            @endif
+        <div class="mb-4">
+            <label for="nama" class="block text-sm font-medium text-gray-700">Nama UKM</label>
+            <input type="text" id="nama" name="nama"
+                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                   value="{{ old('nama', $ukm->nama) }}" required>
+            @error('nama')
+                <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
+            @enderror
         </div>
 
-        <!-- Tabel Mahasiswa -->
-        <div class="overflow-x-auto mb-6">
-            <table class="min-w-full bg-white shadow-md rounded-lg w-full">
-                <thead class="bg-indigo-500 text-white">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-sm font-medium">NIM</th>
-                        <th class="px-6 py-3 text-left text-sm font-medium">Nama</th>
-                        <th class="px-6 py-3 text-left text-sm font-medium">Prodi</th>
-                        <th class="px-6 py-3 text-left text-sm font-medium">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="mahasiswaTable" class="bg-white text-gray-700 divide-y divide-gray-200">
-                    @foreach($mahasiswas as $mahasiswa)
-                    <tr class="hover:bg-gray-100">
-                        <td class="px-6 py-3">{{ $mahasiswa->nim }}</td>
-                        <td class="px-6 py-3">{{ $mahasiswa->nama }}</td>
-                        <td class="px-6 py-3">{{ $mahasiswa->prodi }}</td>
-                        <td class="px-6 py-3">
-                            <button type="button"
-                                class="bg-indigo-500 text-white px-4 py-1 rounded-lg hover:bg-indigo-600 select-mahasiswa"
-                                data-id="{{ $mahasiswa->id }}" data-nama="{{ $mahasiswa->nama }}">Pilih</button>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+        <div class="mb-4">
+            <label for="description" class="block text-sm font-medium text-gray-700">Deskripsi</label>
+            <textarea id="description" name="description"
+                      class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                      rows="4">{{ old('description', $ukm->description) }}</textarea>
+            @error('description')
+                <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
+            @enderror
         </div>
 
-        <!-- Daftar Mahasiswa yang Dipilih -->
-        <div id="selectedMahasiswa" class="mb-6">
-            @foreach($ukm->mahasiswas as $mahasiswa)
-            <div class="mb-3 flex justify-between items-center">
-                <label for="jabatan_{{ $mahasiswa->id }}" class="block text-sm font-bold mb-2">{{ $mahasiswa->nama }}</label>
-                <input type="hidden" name="mahasiswa_ids[]" value="{{ $mahasiswa->id }}">
-                <input type="text" name="jabatan[]" id="jabatan_{{ $mahasiswa->id }}"
-                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                    value="{{ $mahasiswa->pivot->jabatan }}" placeholder="Contoh: Ketua, Wakil Ketua">
-                <button type="button" class="text-red-500 ml-2 remove-mahasiswa"
-                    data-id="{{ $mahasiswa->id }}">Hapus</button>
+        <div class="border-t pt-4 mt-4">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Account Information</h3>
+
+            <div class="mb-4">
+                <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                <input type="text" id="username" name="username"
+                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                       value="{{ old('username', $ukm->user->username) }}">
+                @error('username')
+                    <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
+                @enderror
             </div>
-            @endforeach
+
+            <div class="mb-4">
+                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" id="email" name="email"
+                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500"
+                       value="{{ old('email', $ukm->user->email) }}">
+                @error('email')
+                    <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="block text-sm font-medium text-gray-700">New Password (leave blank to keep current)</label>
+                <input type="password" id="password" name="password"
+                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500">
+                @error('password')
+                    <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-4">
+                <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirm New Password</label>
+                <input type="password" id="password_confirmation" name="password_confirmation"
+                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500">
+            </div>
         </div>
 
-        <!-- Upload File Prestasi -->
-        <div class="mb-6">
-            <label for="file_prestasi" class="block text-sm font-bold mb-2">Unggah File Prestasi (opsional, maksimal 2MB per file)</label>
-            <input type="file" name="file_prestasi[]" id="file_prestasi"
-                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                accept="image/*,.pdf" multiple>
-            <span class="text-xs text-red-500" id="fileError" style="display: none;">File size exceeds 2MB.</span>
+        <div class="flex justify-end space-x-4">
+            <a href="{{ route('ukm.index') }}"
+               class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Batal</a>
+            <button type="submit"
+                    class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600">Update</button>
         </div>
-
-        <!-- File Prestasi Sebelumnya -->
-        <div class="mb-6">
-            <h3 class="text-lg font-semibold">File Prestasi Sebelumnya:</h3>
-            <ul class="list-disc pl-5">
-                @foreach(is_array($ukm->file_prestasi) ? $ukm->file_prestasi : json_decode($ukm->file_prestasi) as $file)
-                <li class="flex justify-between items-center">
-                    <a href="{{ asset('storage/' . $file) }}" class="text-blue-500" target="_blank">{{ basename($file) }}</a>
-                    <button type="button" class="text-red-500 ml-2 remove-file" data-file="{{ basename($file) }}">Hapus</button>
-                    <input type="hidden" name="removed_files[]" value="" class="removed-file-input">
-                </li>
-                @endforeach
-            </ul>
-        </div>
-
-
-        <!-- Submit Button -->
-        <button type="submit" class="bg-green-500 text-white w-full py-3 rounded-lg hover:bg-green-600">Simpan</button>
     </form>
 </div>
-
-<script>
-    // File Prestasi - Validasi ukuran file
-    document.getElementById('file_prestasi').addEventListener('change', function () {
-        const fileError = document.getElementById('fileError');
-        let exceedsLimit = false;
-
-        Array.from(this.files).forEach(file => {
-            const fileSize = file.size / 1024 / 1024;
-            if (fileSize > 2) {
-                exceedsLimit = true;
-            }
-        });
-
-        if (exceedsLimit) {
-            fileError.style.display = 'block';
-            this.value = '';
-        } else {
-            fileError.style.display = 'none';
-        }
-    });
-
-    // Menghapus file yang ada
-    document.addEventListener('click', function (event) {
-        if (event.target.classList.contains('remove-file')) {
-            const fileName = event.target.dataset.file;
-            const input = event.target.nextElementSibling; // Hidden input for the file
-
-            if (confirm(`Apakah Anda yakin ingin menghapus file: ${fileName}?`)) {
-                input.value = fileName; // Set file name in hidden input to send to controller
-                event.target.closest('li').remove(); // Remove the file from the DOM
-            }
-        }
-    });
-
-    // Menambahkan mahasiswa yang dipilih ke daftar mahasiswa terpilih
-    document.addEventListener('click', function (event) {
-        if (event.target.classList.contains('select-mahasiswa')) {
-            const mahasiswaId = event.target.dataset.id;
-            const mahasiswaNama = event.target.dataset.nama;
-            const selectedMahasiswa = document.getElementById('selectedMahasiswa');
-
-            if (document.querySelector(`input[value="${mahasiswaId}"]`)) {
-                alert('Mahasiswa sudah dipilih.');
-                return;
-            }
-
-            // Tambahkan mahasiswa ke daftar terpilih
-            selectedMahasiswa.innerHTML += `
-                <div class="mb-3 flex justify-between items-center">
-                    <label for="jabatan_${mahasiswaId}" class="block text-sm font-bold mb-2">${mahasiswaNama}</label>
-                    <input type="hidden" name="mahasiswa_ids[]" value="${mahasiswaId}">
-                    <input type="text" name="jabatan[]" id="jabatan_${mahasiswaId}"
-                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder="Contoh: Ketua, Wakil Ketua">
-                    <button type="button" class="text-red-500 ml-2 remove-mahasiswa" data-id="${mahasiswaId}">Hapus</button>
-                </div>
-            `;
-        }
-
-        // Menghapus mahasiswa dari daftar terpilih
-        if (event.target.classList.contains('remove-mahasiswa')) {
-            event.target.closest('div.mb-3').remove();
-        }
-    });
-</script>
 @endsection

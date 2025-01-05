@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+// app/Models/Ukm.php
 class Ukm extends Model
 {
     use HasFactory;
@@ -13,15 +13,22 @@ class Ukm extends Model
 
     protected $fillable = [
         'nama',
-        'file_prestasi',
+        'user_id', // This will store the UKM account user ID
+        'description',
     ];
 
-    // Relasi many-to-many dengan Mahasiswa melalui tabel pivot 'mahasiswa_ukm'
-    public function mahasiswas()
+    // Relation to User (UKM account)
+    public function user()
     {
-        return $this->belongsToMany(Mahasiswa::class, 'mahasiswa_ukm')
-                    ->withPivot('jabatan') // Menambahkan kolom jabatan di relasi pivot
+        return $this->belongsTo(User::class);
+    }
+
+    // Relation to members (students)
+    public function members()
+    {
+        return $this->belongsToMany(Mahasiswa::class, 'ukm_members', 'ukm_id', 'mahasiswa_id')
+                    ->withPivot('position')
                     ->withTimestamps();
     }
-}
 
+}

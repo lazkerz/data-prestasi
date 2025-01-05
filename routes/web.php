@@ -46,16 +46,28 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{prestasi}', [PrestasiController::class, 'destroy'])->name('prestasi.destroy');
     });
 
-    // Routing untuk UKM
-    Route::prefix('ukm')->group(function () {
+
+    Route::prefix('ukm')->middleware(['auth'])->group(function () {
+        // Basic UKM routes - accessible by both admin and ukm users
         Route::get('/', [UKMController::class, 'index'])->name('ukm.index');
-        Route::get('/create', [UKMController::class, 'create'])->name('ukm.create');
-        Route::post('/', [UKMController::class, 'store'])->name('ukm.store');
-        Route::get('/{ukm}', [UKMController::class, 'show'])->name('ukm.show');
-        Route::get('/{ukm}/edit', [UKMController::class, 'edit'])->name('ukm.edit');
-        Route::put('/{ukm}', [UKMController::class, 'update'])->name('ukm.update');
-        Route::delete('/{ukm}', [UKMController::class, 'destroy'])->name('ukm.destroy');
+
+        // Admin only routes
+        Route::middleware(['auth'])->group(function () {
+            Route::get('/create', [UKMController::class, 'create'])->name('ukm.create');
+            Route::post('/', [UKMController::class, 'store'])->name('ukm.store');
+            Route::get('/{ukm}/edit', [UKMController::class, 'edit'])->name('ukm.edit');
+            Route::put('/{ukm}', [UKMController::class, 'update'])->name('ukm.update');
+            Route::delete('/{ukm}', [UKMController::class, 'destroy'])->name('ukm.destroy');
+        });
+
+        // Member management routes - accessible by both admin and ukm users
+
+        Route::get('/{ukm}/members', [UKMController::class, 'showMembers'])->name('ukm.members');
+        Route::post('/{ukm}/members', [UkmController::class, 'addMembers'])->name('ukm.members.add');
+        Route::put('/{ukm}/members/{member}/edit', [UKMController::class, 'updateMember'])->name('ukm.members.update');
+        Route::delete('/{ukm}/members/{member}', [UKMController::class, 'removeMember'])->name('ukm.members.remove');
     });
+
 
     // Routing untuk pencarian Mahasiswa dalam UKM
     Route::get('/search-mahasiswa', [UKMController::class, 'searchMahasiswa'])->name('search.mahasiswa');
