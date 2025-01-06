@@ -30,8 +30,14 @@ class Mahasiswa extends Model
     public function ukms()
     {
         return $this->belongsToMany(Ukm::class, 'ukm_members')
-                    ->withPivot('position')
-                    ->withTimestamps();
+            ->withPivot('position')
+            ->withTimestamps();
     }
 
+    public function hmps()
+    {
+        return $this->belongsToMany(Hmps::class, 'hmps_members')
+            ->withPivot('position')
+            ->withTimestamps();
+    }
 }

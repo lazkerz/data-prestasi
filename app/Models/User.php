@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
@@ -46,5 +47,10 @@ class User extends Authenticatable
     public function ukm()
     {
         return $this->hasMany(Ukm::class);
+    }
+
+    public function hmps()
+    {
+        return $this->hasMany(Hmps::class);
     }
 }

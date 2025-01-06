@@ -9,6 +9,11 @@ class Prodi extends Model
 {
     use HasFactory;
 
+    protected $table = 'prodis'; // Add this line to explicitly set the table name
     protected $fillable = ['nama_prodi'];
-}
 
+    public function hmps()
+    {
+        return $this->hasOne(Hmps::class, 'prodi_id');
+    }
+}
