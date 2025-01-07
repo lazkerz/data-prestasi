@@ -17,6 +17,7 @@ class Prestasi extends Model
         'deskripsi_prestasi',
         'jenis_prestasi',
         'tingkatan_prestasi',
+        'tahun_prestasi',
         'file_prestasi',
     ];
 

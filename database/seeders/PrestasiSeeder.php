@@ -20,7 +20,9 @@ class PrestasiSeeder extends Seeder
             'deskripsi_prestasi' => 'Lomba tingkat nasional',
             'jenis_prestasi' => 'Akademik',
             'tingkatan_prestasi' => 'Nasional',
+            'tahun_prestasi' => '2022',
             'file_prestasi' => 'lomba_karya_ilmiah.pdf',
+
         ]);
 
         // Tambahkan data dummy lainnya sesuai kebutuhan

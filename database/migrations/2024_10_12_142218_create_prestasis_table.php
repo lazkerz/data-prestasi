@@ -20,6 +20,7 @@ class CreatePrestasisTable extends Migration
             $table->text('deskripsi_prestasi')->nullable();
             $table->enum('jenis_prestasi', ['Akademik', 'Non-Akademik']);
             $table->enum('tingkatan_prestasi', ['Lokal', 'Nasional', 'Internasional']);
+            $table->date('tahun_prestasi');
             $table->string('file_prestasi')->nullable();
             $table->timestamps();
 

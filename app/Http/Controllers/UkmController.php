@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
-class UKMController extends Controller
+class UkmController extends Controller
 {
     public function index(Request $request)
     {

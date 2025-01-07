@@ -49,6 +49,8 @@ Route::middleware(['auth'])->group(function () {
     });
 
 
+    Route::get('/prestasi/export-pdf', [PrestasiController::class, 'exportPDF'])->name('prestasi.export-pdf');
+
     Route::prefix('ukm')->middleware(['auth'])->group(function () {
         // Basic UKM routes - accessible by both admin and ukm users
         Route::get('/', [UKMController::class, 'index'])->name('ukm.index');
@@ -76,21 +78,18 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [HmpsController::class, 'index'])->name('hmps.index');
 
         // Admin only routes
-            Route::get('/create', [HmpsController::class, 'create'])->name('hmps.create');
-            Route::post('/', [HmpsController::class, 'store'])->name('hmps.store');
-            Route::get('/{hmps}/edit', [HmpsController::class, 'edit'])->name('hmps.edit');
-            Route::put('/{hmps}', [HmpsController::class, 'update'])->name('hmps.update');
-            Route::delete('/{hmps}', [HmpsController::class, 'destroy'])->name('hmps.destroy');
+        Route::get('/create', [HmpsController::class, 'create'])->name('hmps.create');
+        Route::post('/', [HmpsController::class, 'store'])->name('hmps.store');
+        Route::get('/{hmps}/edit', [HmpsController::class, 'edit'])->name('hmps.edit');
+        Route::put('/{hmps}', [HmpsController::class, 'update'])->name('hmps.update');
+        Route::delete('/{hmps}', [HmpsController::class, 'destroy'])->name('hmps.destroy');
 
-            Route::prefix('/{hmps}/members')->group(function () {
-                Route::get('/', [HmpsMemberController::class, 'showMembers'])->name('hmps.members');
-                Route::post('/add', [HmpsMemberController::class, 'addMembers'])->name('hmps.members.add');
-                Route::put('/{memberId}/update', [HmpsMemberController::class, 'updateMember'])->name('hmps.members.update');
-                Route::delete('/{memberId}/remove', [HmpsMemberController::class, 'removeMember'])->name('hmps.members.remove');
-
-            });
-
-
+        Route::prefix('/{hmps}/members')->group(function () {
+            Route::get('/', [HmpsMemberController::class, 'showMembers'])->name('hmps.members');
+            Route::post('/add', [HmpsMemberController::class, 'addMembers'])->name('hmps.members.add');
+            Route::put('/{memberId}/update', [HmpsMemberController::class, 'updateMember'])->name('hmps.members.update');
+            Route::delete('/{memberId}/remove', [HmpsMemberController::class, 'removeMember'])->name('hmps.members.remove');
+        });
     });
 
     Route::get('/hmps/{hmps}/search-mahasiswa', [HmpsMemberController::class, 'searchMahasiswa'])->name('hmps.search.mahasiswa');

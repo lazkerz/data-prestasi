@@ -51,6 +51,19 @@ class MahasiswaController extends Controller
         return view('mahasiswa.index', compact('mahasiswa', 'search', 'rows', 'isPaginated'));
     }
 
+    // Jika menggunakan barryvdh/laravel-dompdf
+
+    public function exportPDF()
+    {
+        $mahasiswas = Mahasiswa::with('prestasi')->get();
+
+        $pdf = PDF::loadView('prestasi.export-pdf', [
+            'mahasiswas' => $mahasiswas
+        ]);
+
+        return $pdf->download('daftar-prestasi-mahasiswa.pdf');
+    }
+
 
     public function create()
     {
