@@ -7,7 +7,7 @@
 
         <!-- Dropdown untuk memilih jumlah baris yang ditampilkan -->
         <div class="my-4 flex justify-between gap-2">
-            <div class="flex flex-col gap-3">
+            <div class="flex flex-row items-center gap-3">
                 <div>
                     <label for="rows" class="mr-2 text-sm">Show rows:</label>
                     <select id="rows" name="rows" class="border rounded px-4 py-2 bg-white appearance-none pr-8"
@@ -18,7 +18,7 @@
                         <option value="all" {{ request('rows') == 'all' ? 'selected' : '' }}>All</option>
                     </select>
                 </div>
-                <a href="{{ route('prestasi.export-pdf') }}" class="bg-purple-400 text-white p-3 w-fit rounded">
+                <a href="{{ route('prestasi.export-pdf') }}" class="bg-purple-400 text-white p-2 w-fit rounded">
                     Export PDF
                 </a>
 
@@ -26,7 +26,21 @@
 
 
             <!-- Search Box -->
-            <form action="{{ route('prestasi.index') }}" method="GET" class="flex items-center">
+            <form action="{{ route('prestasi.index') }}" method="GET" class="flex items-center gap-2">
+                <div class="flex items-center gap-2">
+                    <div>
+                        <label for="start_date" class="text-sm">From:</label>
+                        <input type="date" id="start_date" name="start_date"
+                            class="border rounded px-2 py-1"
+                            value="{{ request('start_date') }}">
+                    </div>
+                    <div>
+                        <label for="end_date" class="text-sm">To:</label>
+                        <input type="date" id="end_date" name="end_date"
+                            class="border rounded px-2 py-1"
+                            value="{{ request('end_date') }}">
+                    </div>
+                </div>
                 <input type="text" name="search" placeholder="Cari Mahasiswa..." class="border rounded px-2 py-1 mr-2" value="{{ request('search') }}">
                 <button type="submit" class="bg-purple-400 text-white px-3 py-1 rounded">Cari</button>
             </form>

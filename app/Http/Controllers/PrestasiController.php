@@ -11,11 +11,27 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class PrestasiController extends Controller
 {
+
+    public function date()
+    {
+        return date('d-m-y');
+    }
     public function index(Request $request)
     {
         $user = Auth::user();
         $rows = $request->input('rows', 10);
         $search = $request->input('search');
+
+
+        $query = Mahasiswa::with(['prestasi' => function ($query) use ($request) {
+            // Apply date filter if dates are provided
+            if ($request->filled('start_date')) {
+                $query->whereDate('created_at', '>=', $request->start_date);
+            }
+            if ($request->filled('end_date')) {
+                $query->whereDate('created_at', '<=', $request->end_date);
+            }
+        }]);
 
         $query = Mahasiswa::with('prestasi');
 
