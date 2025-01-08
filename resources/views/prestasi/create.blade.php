@@ -3,11 +3,13 @@
 @section('content')
 <div class="bg-gray-50 p-6">
     <div class="h-fit md:ml-40 md:justify-center md:items-center mt-0 mb-10 gap-2">
-        <h2 class="text-xl font-bold text-center mx-auto text-purple-400 mb-5">Tambah Prestasi Mahasiswa: {{ $mahasiswa->nama }}</h2>
+        <h2 class="text-xl font-bold text-center mx-auto text-purple-400 mb-5">Tambah Prestasi Mahasiswa: {{
+            $mahasiswa->nama }}</h2>
 
         <!-- Form untuk submit -->
         <div class="flex justify-center mx-auto w-[450px]">
-            <form action="{{ route('prestasi.store', $mahasiswa->id) }}" method="POST" enctype="multipart/form-data" id="prestasiForm" class="w-full gap-3 p-5 bg-white rounded-lg shadow-lg">
+            <form action="{{ route('prestasi.store', $mahasiswa->id) }}" method="POST" enctype="multipart/form-data"
+                id="prestasiForm" class="w-full gap-3 p-5 bg-white rounded-lg shadow-lg">
                 @csrf
                 <div id="prestasi-forms">
                     <!-- Form Prestasi 1 -->
@@ -15,19 +17,22 @@
                         <h3 class="text-lg font-semibold text-gray-700 mb-2">Prestasi 1</h3>
 
                         <div class="mb-4">
-                            <label for="nama_prestasi" class="block text-sm font-medium text-gray-700">Judul Prestasi:</label>
+                            <label for="nama_prestasi" class="block text-sm font-medium text-gray-700">Judul
+                                Prestasi:</label>
                             <input type="text" name="nama_prestasi[]" required
                                 class="mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                         </div>
 
                         <div class="mb-4">
-                            <label for="deskripsi_prestasi" class="block text-sm font-medium text-gray-700">Deskripsi:</label>
+                            <label for="deskripsi_prestasi"
+                                class="block text-sm font-medium text-gray-700">Deskripsi:</label>
                             <textarea name="deskripsi_prestasi[]" required
                                 class="mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
                         </div>
 
                         <div class="mb-4">
-                            <label for="jenis_prestasi" class="block text-sm font-medium text-gray-700">Jenis Prestasi:</label>
+                            <label for="jenis_prestasi" class="block text-sm font-medium text-gray-700">Jenis
+                                Prestasi:</label>
                             <select name="jenis_prestasi[]" required
                                 class="mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                 <option value="Akademik">Akademik</option>
@@ -36,7 +41,8 @@
                         </div>
 
                         <div class="mb-4">
-                            <label for="tingkatan_prestasi" class="block text-sm font-medium text-gray-700">Tingkatan Prestasi:</label>
+                            <label for="tingkatan_prestasi" class="block text-sm font-medium text-gray-700">Tingkatan
+                                Prestasi:</label>
                             <select name="tingkatan_prestasi[]" required
                                 class="mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                 <option value="Lokal">Lokal</option>
@@ -44,11 +50,21 @@
                                 <option value="Internasional">Internasional</option>
                             </select>
                         </div>
+                        <!-- Date Field -->
+
 
                         <div class="mb-4">
-                            <label for="file_prestasi" class="block text-sm font-medium text-gray-700">Upload File (PDF atau Gambar):</label>
+                            <label for="file_prestasi" class="block text-sm font-medium text-gray-700">Upload File (PDF
+                                atau Gambar):</label>
                             <input type="file" name="file_prestasi[]" accept=".pdf,.jpg,.jpeg,.png"
                                 class="mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        </div>
+
+                        <div>
+                            <label for="tahun_prestasi" class="block text-sm font-medium text-gray-700">Tanggal:</label>
+                            <input type="date" name="tahun_prestasi" id="tanggal"
+                                class="mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                required>
                         </div>
                     </div>
                 </div>

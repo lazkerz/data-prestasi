@@ -72,6 +72,7 @@ class PrestasiController extends Controller
             'jenis_prestasi.*' => 'required|in:Akademik,Non-Akademik',
             'tingkatan_prestasi.*' => 'required|in:Lokal,Nasional,Internasional',
             'file_prestasi.*' => 'nullable|mimes:pdf,jpg,jpeg,png|max:2048',
+            'tahun_prestasi' => 'required|date|before_or_equal:today',
         ]);
 
         if (!is_array($request->nama_prestasi) || empty($request->nama_prestasi)) {
@@ -101,6 +102,7 @@ class PrestasiController extends Controller
                 'jenis_prestasi' => $request->jenis_prestasi[$index],
                 'tingkatan_prestasi' => $request->tingkatan_prestasi[$index],
                 'file_prestasi' => $file ? str_replace('public/', '', $file) : null,
+                'tahun_prestasi' => $request->tahun_prestasi,
             ]);
         }
 
@@ -115,11 +117,12 @@ class PrestasiController extends Controller
     public function update(Request $request, Prestasi $prestasi)
     {
         $validatedData = $request->validate([
-            'nama_prestasi' => 'required|string|max:255',
-            'deskripsi_prestasi' => 'required|string',
-            'jenis_prestasi' => 'required|in:Akademik,Non-Akademik',
-            'tingkatan_prestasi' => 'required|in:Lokal,Nasional,Internasional',
-            'file_prestasi' => 'nullable|mimes:pdf,jpg,jpeg,png|max:2048',
+            'nama_prestasi.*' => 'required|string|max:255',
+            'deskripsi_prestasi.*' => 'required|string',
+            'jenis_prestasi.*' => 'required|in:Akademik,Non-Akademik',
+            'tingkatan_prestasi.*' => 'required|in:Lokal,Nasional,Internasional',
+            'file_prestasi.*' => 'nullable|mimes:pdf,jpg,jpeg,png|max:2048',
+            'tahun_prestasi' => 'required|date|before_or_equal:today',
         ]);
 
         $folderPath = 'public/prestasi_files/' . $prestasi->mahasiswa->prodi . '/' . $prestasi->mahasiswa->nama;
@@ -135,7 +138,13 @@ class PrestasiController extends Controller
             $prestasi->update(['file_prestasi' => str_replace('public/', '', $file)]);
         }
 
-        $prestasi->update($request->only(['nama_prestasi', 'deskripsi_prestasi', 'jenis_prestasi', 'tingkatan_prestasi']));
+        $prestasi->update($request->only([
+            'nama_prestasi',
+            'deskripsi_prestasi',
+            'jenis_prestasi',
+            'tingkatan_prestasi',
+            'tahun_prestasi',
+        ]));
 
         return redirect()->route('prestasi.index')->with('success', 'Prestasi berhasil diupdate');
     }

@@ -120,8 +120,9 @@
         <div class="bg-white p-6 rounded shadow-lg w-96">
             <h3 class="text-lg font-bold text-gray-700 mb-4">Edit Anggota</h3>
             <form id="edit-member-form"
-                action="{{ route('ukm.members.update', ['ukm' => $ukm->id, 'member' => $member->id]) }}" method="POST">
-                @csrf
+            action="{{ isset($member) ? route('ukm.members.update', ['ukm' => $ukm->id, 'member' => $member->id]) : '#' }}"
+            method="POST">
+            @csrf
                 @method('PUT')
 
                 <div class="mb-4">
