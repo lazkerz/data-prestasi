@@ -141,15 +141,14 @@ class MahasiswaController extends Controller
 
     public function show($nim)
     {
-        // Initialize mahasiswa as null
-        $mahasiswa = null;
+        $mahasiswa = Mahasiswa::with(['ukms', 'hmps'])
+            ->where('nim', $nim)
+            ->first();
 
-        // Only try to find mahasiswa if NIM is numeric
-        if (is_numeric($nim)) {
-            $mahasiswa = Mahasiswa::where('nim', $nim)->first();
+        if (!$mahasiswa) {
+            return redirect()->back()->with('error', 'Mahasiswa tidak ditemukan');
         }
 
-        // Return view - it will show the message if $mahasiswa is null
         return view('mahasiswa.show', compact('mahasiswa'));
     }
 }
