@@ -33,10 +33,32 @@
 
         </div>
         <div class="md:ml-3 mt-3 flex flex-col bg-purple-300 p-5 rounded rounded-lg w-full">
-            <div class="bg-white flex flex-col gap-3 p-4 rounded rounded-lg shadow shadow-md w-fit mb-3">
-                <p class="text-md font-semibold">Mahasiswa Berprestasi</p>
-                <h2 class="text-3xl font-semibold text-black">{{ $mahasiswaBerprestasi }}</h2>
-                <p class="text-sm font-medium">dalam {{ $lastTwoMonths[0] }} - {{ $lastTwoMonths[1] }}</p>
+            <div class="flex flex-col lg:flex-row gap-4 mb-3">
+                <!-- Card Mahasiswa Berprestasi -->
+                <div class="bg-white flex flex-col gap-3 p-4 rounded-lg shadow-md w-fit">
+                    <p class="text-md font-semibold">Mahasiswa Berprestasi</p>
+                    <h2 class="text-3xl font-semibold text-black">{{ $mahasiswaBerprestasi }}</h2>
+                    <p class="text-sm font-medium">dalam {{ $lastTwoMonths[0] }} - {{ $lastTwoMonths[1] }}</p>
+                </div>
+
+                <!-- Top 3 Mahasiswa Berprestasi -->
+                <div class="bg-white rounded-lg shadow-md p-4 w-fit">
+                    <h2 class="text-md font-semibold mb-4">Top 3 Mahasiswa Berprestasi Tahun {{ now()->year }}</h2>
+                    <div class="space-y-3">
+                        @foreach($topMahasiswa as $index => $mhs)
+                        <div class="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                            <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full {{ $index === 0 ? 'bg-yellow-400' : ($index === 1 ? 'bg-gray-300' : 'bg-yellow-600') }}">
+                                <span class="text-white font-bold">{{ $index + 1 }}</span>
+                            </div>
+                            <div>
+                                <h3 class="font-medium">{{ $mhs->nama }}</h3>
+                                <p class="text-sm text-gray-600">{{ $mhs->nim }} - {{ $mhs->prodi }}</p>
+                                <p class="text-sm text-gray-500">{{ $mhs->prestasi_count }} Prestasi</p>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 gap-3 rounded rounded-lg shadow shadow-md w-full">

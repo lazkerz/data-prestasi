@@ -19,6 +19,20 @@ class DashboardController extends Controller
         $user = Auth::user();
         $role = $user->getRoleNames()->first();
 
+        $topMahasiswa = DB::table('mahasiswa')
+            ->select(
+                'mahasiswa.nama',
+                'mahasiswa.nim',
+                'mahasiswa.prodi',
+                DB::raw('COUNT(prestasi.id) as prestasi_count')
+            )
+            ->join('prestasi', 'mahasiswa.id', '=', 'prestasi.mahasiswa_id')
+            ->whereYear('prestasi.tahun_prestasi', now()->year)
+            ->groupBy('mahasiswa.id', 'mahasiswa.nama', 'mahasiswa.nim', 'mahasiswa.prodi')
+            ->orderByDesc('prestasi_count')
+            ->take(3)
+            ->get();
+
         // Data for the first chart (Prestasi per month)
         $prestasiData = Prestasi::select(
             DB::raw('DATE_FORMAT(created_at, "%b") as month'),
@@ -103,6 +117,6 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        return view('dashboard', compact('user', 'role', 'months', 'counts', 'tingkatanChartData', 'allMonths', 'mahasiswaBerprestasi', 'lastTwoMonths', 'prodiData', 'totalMahasiswaBerprestasi', 'prestasiLokal', 'prestasiNasional', 'prestasiInternasional'));
+        return view('dashboard', compact('user', 'role', 'months', 'counts', 'tingkatanChartData', 'allMonths', 'mahasiswaBerprestasi', 'lastTwoMonths', 'prodiData', 'totalMahasiswaBerprestasi', 'prestasiLokal', 'prestasiNasional', 'prestasiInternasional', 'topMahasiswa'));
     }
 }
