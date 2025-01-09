@@ -47,7 +47,11 @@
                 <tbody>
                     @forelse ($mahasiswa as $mhs)
                     <tr class="bg-white border-b hover:bg-gray-50">
-                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{{ $mhs->nama }}</td>
+                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                            <a href="{{ route('mahasiswa.show', $mhs->nim) }}" class="hover:bg-gray-50">
+                                {{ $mhs->nama }}
+                            </a>
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap">{{ $mhs->nim }}</td>
                         <td class="px-6 py-4">{{ $mhs->jenis_kelamin }}</td>
                         <td class="px-6 py-4">{{ $mhs->prodi }}</td>
